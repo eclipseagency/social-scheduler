@@ -14,9 +14,9 @@ export default function ClientLogoCard({
   description,
 }: ClientLogoCardProps) {
   return (
-    <div className="glass-card p-6 group cursor-pointer">
+    <div className="bg-[rgba(139,92,246,0.08)] border border-[rgba(139,92,246,0.2)] rounded-2xl p-6 hover:bg-[rgba(139,92,246,0.12)] hover:border-[rgba(236,72,153,0.4)] transition-all duration-300 group cursor-pointer">
       {/* Logo Area */}
-      <div className="w-full aspect-square rounded-xl bg-gradient-to-br from-[rgba(139,92,246,0.1)] to-[rgba(236,72,153,0.1)] flex items-center justify-center mb-4 group-hover:from-[rgba(139,92,246,0.2)] group-hover:to-[rgba(236,72,153,0.2)] transition-all duration-300 overflow-hidden">
+      <div className="w-full h-40 rounded-xl bg-gradient-to-br from-[rgba(139,92,246,0.15)] to-[rgba(236,72,153,0.15)] flex items-center justify-center mb-5 group-hover:from-[rgba(139,92,246,0.25)] group-hover:to-[rgba(236,72,153,0.25)] transition-all duration-300 overflow-hidden">
         {logoUrl ? (
           <img
             src={logoUrl}
@@ -24,17 +24,17 @@ export default function ClientLogoCard({
             className="w-full h-full object-contain p-4"
           />
         ) : (
-          <Building2 className="w-16 h-16 text-[#8B5CF6] opacity-50 group-hover:opacity-70 transition-opacity" />
+          <Building2 className="w-16 h-16 text-[#8B5CF6] opacity-40 group-hover:opacity-60 transition-opacity" />
         )}
       </div>
 
       {/* Client Info */}
-      <h3 className="text-white font-semibold text-lg mb-1 truncate group-hover:text-gradient transition-colors">
+      <h3 className="text-white font-semibold text-xl mb-2 truncate group-hover:text-gradient transition-colors">
         {name}
       </h3>
 
       {description && (
-        <p className="text-[#94a3b8] text-sm mb-3 line-clamp-2">{description}</p>
+        <p className="text-[#94a3b8] text-sm mb-4 line-clamp-2 leading-relaxed">{description}</p>
       )}
 
       {/* Action Hint */}

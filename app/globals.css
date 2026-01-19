@@ -24,10 +24,6 @@
 
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
-  --gradient-subtle: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
-  --gradient-background: radial-gradient(ellipse at top, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-                         radial-gradient(ellipse at bottom right, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
-                         radial-gradient(ellipse at bottom left, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
 
   /* Shadows */
   --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.3);
@@ -53,8 +49,6 @@ html {
 
 body {
   background: var(--background);
-  background-image: var(--gradient-background);
-  background-attachment: fixed;
   color: var(--foreground);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   min-height: 100vh;
@@ -81,9 +75,9 @@ body {
   width: 200%;
   height: 200%;
   background:
-    radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.3) 0%, transparent 40%),
-    radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.25) 0%, transparent 40%),
-    radial-gradient(circle at 40% 40%, rgba(167, 139, 250, 0.2) 0%, transparent 30%);
+    radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.25) 0%, transparent 40%),
+    radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.2) 0%, transparent 40%),
+    radial-gradient(circle at 40% 40%, rgba(167, 139, 250, 0.15) 0%, transparent 30%);
   animation: float 20s ease-in-out infinite;
 }
 
@@ -140,7 +134,7 @@ body {
 
 .btn-gradient:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+  box-shadow: 0 6px 25px rgba(139, 92, 246, 0.5);
 }
 
 .btn-gradient:active {
@@ -222,13 +216,9 @@ body {
 
 /* Link styling */
 a {
-  color: var(--primary-light-purple);
+  color: inherit;
   text-decoration: none;
   transition: color 0.3s ease;
-}
-
-a:hover {
-  color: var(--primary-pink);
 }
 
 /* Platform colors */
@@ -279,13 +269,28 @@ a:hover {
 /* Pulse glow animation */
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
   }
   50% {
-    box-shadow: 0 0 40px rgba(236, 72, 153, 0.6);
+    box-shadow: 0 0 40px rgba(236, 72, 153, 0.5);
   }
 }
 
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
