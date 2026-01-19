@@ -1,36 +1,150 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SocialFlow - Social Media Management Platform
+
+A premium social media management platform for managing multiple clients, scheduling posts, and generating AI-powered captions.
+
+## Features
+
+- **Client Management** - Add and manage multiple clients with their own profiles, logos, and dashboards
+- **Multi-Platform Support** - Schedule and publish to Instagram, Facebook, and LinkedIn
+- **AI-Powered Captions** - Generate unique, engaging captions using Claude AI
+- **Smart Scheduling** - Schedule posts in advance with automatic publishing
+- **Content Calendar** - Visual calendar to plan content strategy
+- **Media Library** - Upload and organize design images for posts
+- **Client Dashboards** - Each client gets their own private dashboard
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4
+- **Database**: SQLite with Prisma ORM
+- **Authentication**: NextAuth.js
+- **AI**: Anthropic Claude API
+- **Icons**: Lucide React
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+ installed
+- npm or yarn package manager
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd social-scheduler
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables by creating a `.env` file:
+   ```env
+   # Database
+   DATABASE_URL="file:./dev.db"
+
+   # NextAuth
+   NEXTAUTH_URL="http://localhost:3000"
+   NEXTAUTH_SECRET="your-secret-key-here"
+
+   # Claude AI API Key (get from https://console.anthropic.com)
+   ANTHROPIC_API_KEY="your-anthropic-api-key"
+
+   # Contact Email
+   CONTACT_EMAIL="your-email@gmail.com"
+   ```
+
+4. Generate Prisma client and run migrations:
+   ```bash
+   npx prisma generate
+   npx prisma migrate dev
+   ```
+
+5. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+6. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `DATABASE_URL` | SQLite database URL | Yes |
+| `NEXTAUTH_URL` | Your app URL | Yes |
+| `NEXTAUTH_SECRET` | Secret key for NextAuth sessions | Yes |
+| `ANTHROPIC_API_KEY` | Claude AI API key for caption generation | Yes |
+| `CONTACT_EMAIL` | Email for contact form submissions | No |
+
+## Project Structure
+
+```
+social-scheduler/
+├── app/
+│   ├── api/              # API routes
+│   │   ├── auth/         # NextAuth authentication
+│   │   ├── clients/      # Client CRUD operations
+│   │   ├── posts/        # Post management
+│   │   ├── ai/           # AI caption generation
+│   │   └── contact/      # Contact form submissions
+│   ├── components/       # Reusable React components
+│   │   ├── Navbar.tsx
+│   │   ├── Footer.tsx
+│   │   ├── ChatBot.tsx
+│   │   ├── ClientLogoCard.tsx
+│   │   └── ContactSection.tsx
+│   ├── dashboard/        # Admin dashboard pages
+│   ├── client-dashboard/ # Client dashboard pages
+│   ├── login/            # Authentication page
+│   ├── about/            # About page
+│   ├── lib/              # Utilities and configurations
+│   ├── globals.css       # Global styles and theme
+│   ├── layout.tsx        # Root layout
+│   └── page.tsx          # Landing page
+├── prisma/
+│   └── schema.prisma     # Database schema
+└── public/
+    └── uploads/          # Uploaded media files
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Available Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Design
 
-## Learn More
+The application features a modern, premium design with:
+- Soft purple and pink gradient backgrounds
+- Glass morphism effects
+- Smooth animations and transitions
+- Dark theme optimized for content creation
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The app is optimized for deployment on Vercel:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Add environment variables in Vercel dashboard
+4. Deploy!
 
-## Deploy on Vercel
+## Future Improvements
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [ ] Real social media API integrations (Instagram Graph API, Facebook API, LinkedIn API)
+- [ ] Email notifications for scheduled posts
+- [ ] Analytics dashboard with engagement metrics
+- [ ] Team collaboration features
+- [ ] Bulk post scheduling
+- [ ] Content templates
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+MIT License
