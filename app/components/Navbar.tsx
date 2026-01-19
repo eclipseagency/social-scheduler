@@ -11,27 +11,27 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-card border-b border-[rgba(139,92,246,0.2)] rounded-none">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="container-main">
+        <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] flex items-center justify-center">
-              <span className="text-white font-bold text-xl">S</span>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] flex items-center justify-center">
+              <span className="text-white font-bold text-base sm:text-xl">S</span>
             </div>
-            <span className="text-xl font-bold text-gradient">SocialFlow</span>
+            <span className="text-lg sm:text-xl font-bold text-gradient">SocialFlow</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
             <Link
               href="/"
-              className="text-[#94a3b8] hover:text-white transition-colors"
+              className="text-[#94a3b8] hover:text-white transition-colors text-sm lg:text-base"
             >
               Home
             </Link>
             <Link
               href="/about"
-              className="text-[#94a3b8] hover:text-white transition-colors"
+              className="text-[#94a3b8] hover:text-white transition-colors text-sm lg:text-base"
             >
               About Us
             </Link>
@@ -39,27 +39,27 @@ export default function Navbar() {
               <>
                 <Link
                   href={session.user.role === "admin" ? "/dashboard" : "/client-dashboard"}
-                  className="text-[#94a3b8] hover:text-white transition-colors flex items-center gap-2"
+                  className="text-[#94a3b8] hover:text-white transition-colors flex items-center gap-2 text-sm lg:text-base"
                 >
                   <LayoutDashboard className="w-4 h-4" />
                   Dashboard
                 </Link>
-                <div className="flex items-center gap-4">
-                  <span className="text-[#94a3b8] text-sm flex items-center gap-2">
-                    <User className="w-4 h-4" />
+                <div className="flex items-center gap-3 lg:gap-4">
+                  <span className="text-[#94a3b8] text-xs lg:text-sm flex items-center gap-2">
+                    <User className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                     {session.user.name}
                   </span>
                   <button
                     onClick={() => signOut({ callbackUrl: "/" })}
-                    className="btn-outline text-sm py-2 px-4 flex items-center gap-2"
+                    className="btn-outline text-xs lg:text-sm py-1.5 lg:py-2 px-3 lg:px-4 flex items-center gap-2"
                   >
-                    <LogOut className="w-4 h-4" />
+                    <LogOut className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                     Logout
                   </button>
                 </div>
               </>
             ) : (
-              <Link href="/login" className="btn-gradient text-sm py-2 px-6">
+              <Link href="/login" className="btn-gradient text-xs lg:text-sm py-1.5 lg:py-2 px-4 lg:px-6">
                 Login
               </Link>
             )}
@@ -67,13 +67,13 @@ export default function Navbar() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden text-white"
+            className="md:hidden text-white p-1"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? (
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             ) : (
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
             )}
           </button>
         </div>
@@ -82,17 +82,17 @@ export default function Navbar() {
       {/* Mobile Navigation */}
       {isMenuOpen && (
         <div className="md:hidden glass-card border-t border-[rgba(139,92,246,0.2)] rounded-none">
-          <div className="px-4 py-4 space-y-4">
+          <div className="container-main py-4 space-y-3">
             <Link
               href="/"
-              className="block text-[#94a3b8] hover:text-white transition-colors"
+              className="block text-[#94a3b8] hover:text-white transition-colors text-sm"
               onClick={() => setIsMenuOpen(false)}
             >
               Home
             </Link>
             <Link
               href="/about"
-              className="block text-[#94a3b8] hover:text-white transition-colors"
+              className="block text-[#94a3b8] hover:text-white transition-colors text-sm"
               onClick={() => setIsMenuOpen(false)}
             >
               About Us
@@ -101,18 +101,18 @@ export default function Navbar() {
               <>
                 <Link
                   href={session.user.role === "admin" ? "/dashboard" : "/client-dashboard"}
-                  className="block text-[#94a3b8] hover:text-white transition-colors"
+                  className="block text-[#94a3b8] hover:text-white transition-colors text-sm"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Dashboard
                 </Link>
-                <div className="pt-4 border-t border-[rgba(139,92,246,0.2)]">
-                  <p className="text-[#94a3b8] text-sm mb-2">
+                <div className="pt-3 border-t border-[rgba(139,92,246,0.2)]">
+                  <p className="text-[#94a3b8] text-xs mb-2">
                     Signed in as {session.user.name}
                   </p>
                   <button
                     onClick={() => signOut({ callbackUrl: "/" })}
-                    className="btn-outline w-full text-sm py-2"
+                    className="btn-outline w-full text-xs py-2"
                   >
                     Logout
                   </button>
@@ -121,7 +121,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="block btn-gradient text-center text-sm py-2"
+                className="block btn-gradient text-center text-xs py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Login
