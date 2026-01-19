@@ -52,23 +52,23 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="pt-24 pb-16 md:pt-32 md:pb-20">
-        <div className="container text-center">
-          <div className="inline-flex items-center gap-2 bg-[rgba(139,92,246,0.1)] border border-[rgba(139,92,246,0.2)] rounded-full px-4 py-2 mb-6">
+      <section className="pt-32 pb-20 md:pt-40 md:pb-28 px-6 md:px-8">
+        <div className="container text-center max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 bg-[rgba(139,92,246,0.1)] border border-[rgba(139,92,246,0.2)] rounded-full px-5 py-2.5 mb-8">
             <Sparkles className="w-4 h-4 text-[#EC4899]" />
             <span className="text-sm text-[#94a3b8]">AI-Powered Social Media Management</span>
           </div>
 
-          <h1 className="text-[32px] md:text-[48px] font-bold leading-[1.2] mb-4 max-w-3xl mx-auto">
+          <h1 className="text-[36px] md:text-[56px] font-bold leading-[1.15] mb-6 max-w-3xl mx-auto">
             <span className="text-white">Manage Your Social Media</span>{" "}
             <span className="text-gradient">With Intelligence</span>
           </h1>
 
-          <p className="text-base md:text-lg text-[#94a3b8] max-w-xl mx-auto mb-8 leading-relaxed">
+          <p className="text-base md:text-lg text-[#94a3b8] max-w-2xl mx-auto mb-10 leading-relaxed">
             Streamline content calendars, automate scheduling, and generate AI captions for Instagram, Facebook, and LinkedIn.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Link href="/login" className="btn-primary">
               Get Started <ArrowRight className="w-4 h-4" />
             </Link>
@@ -77,7 +77,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-5">
             {[
               { Icon: Instagram, color: "#E4405F" },
               { Icon: Facebook, color: "#1877F2" },
@@ -85,9 +85,9 @@ export default function Home() {
             ].map(({ Icon, color }) => (
               <div
                 key={color}
-                className="w-12 h-12 rounded-xl bg-[rgba(139,92,246,0.08)] border border-[rgba(139,92,246,0.2)] flex items-center justify-center hover:bg-[rgba(139,92,246,0.15)] transition-colors"
+                className="w-14 h-14 rounded-xl bg-[rgba(139,92,246,0.08)] border border-[rgba(139,92,246,0.2)] flex items-center justify-center hover:bg-[rgba(139,92,246,0.15)] transition-colors"
               >
-                <Icon className="w-5 h-5" style={{ color }} />
+                <Icon className="w-6 h-6" style={{ color }} />
               </div>
             ))}
           </div>
