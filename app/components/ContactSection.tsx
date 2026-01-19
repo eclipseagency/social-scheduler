@@ -7,245 +7,205 @@ interface Message {
   id: string;
   content: string;
   sender: "user" | "bot";
-  timestamp: Date;
+  time: string;
 }
 
 export default function ContactSection() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      content:
-        "Hi there! I'm here to help you get started with SocialFlow. Feel free to ask any questions or leave a message and I'll get back to you via email.",
+      content: "Hi! I'm here to help you get started with SocialFlow. Leave a message and I'll get back to you via email.",
       sender: "bot",
-      timestamp: new Date(),
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
-  const [inputValue, setInputValue] = useState("");
+  const [input, setInput] = useState("");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [showForm, setShowForm] = useState(true);
-  const [isSent, setIsSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || !email.trim() || !name.trim()) return;
+  const handleSend = async () => {
+    if (!input.trim() || !email.trim() || !name.trim()) return;
 
-    const userMessage: Message = {
+    const userMsg: Message = {
       id: Date.now().toString(),
-      content: inputValue,
+      content: input,
       sender: "user",
-      timestamp: new Date(),
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
-    setIsLoading(true);
+    setMessages((prev) => [...prev, userMsg]);
+    setLoading(true);
 
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          message: inputValue,
-        }),
+        body: JSON.stringify({ name, email, message: input }),
       });
 
+      const botMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        content: res.ok
+          ? `Thanks ${name}! I'll get back to you at ${email} soon.`
+          : "Sorry, there was an issue. Please try again or email oemad442@gmail.com",
+        sender: "bot",
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      };
+
+      setMessages((prev) => [...prev, botMsg]);
       if (res.ok) {
-        const botResponse: Message = {
-          id: (Date.now() + 1).toString(),
-          content: `Thanks ${name}! I've received your message and will get back to you at ${email} soon. Have a great day!`,
-          sender: "bot",
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, botResponse]);
-        setInputValue("");
-        setIsSent(true);
-        setShowForm(false);
-      } else {
-        throw new Error("Failed to send");
+        setInput("");
+        setSent(true);
       }
     } catch {
-      const errorResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        content:
-          "Sorry, there was an issue sending your message. Please try again or email me directly at oemad442@gmail.com",
-        sender: "bot",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorResponse]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          content: "Connection error. Please email oemad442@gmail.com directly.",
+          sender: "bot",
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        },
+      ]);
     } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
+      setLoading(false);
     }
   };
 
   return (
-    <section className="py-24 px-6" id="contact">
-      <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+    <section className="section" id="contact">
+      <div className="container max-w-2xl">
+        <div className="text-center mb-8">
+          <h2 className="text-[24px] md:text-[32px] font-bold text-white mb-3">
             Let&apos;s <span className="text-gradient">Connect</span>
           </h2>
-          <p className="text-lg text-[#94a3b8]">
-            Have questions about SocialFlow? Drop me a message and I&apos;ll get
-            back to you as soon as possible.
+          <p className="text-sm md:text-base text-[#94a3b8]">
+            Have questions? Send me a message and I&apos;ll respond soon.
           </p>
         </div>
 
-        <div className="bg-[rgba(139,92,246,0.08)] border border-[rgba(139,92,246,0.2)] rounded-3xl overflow-hidden">
-          {/* Chat Header */}
-          <div className="bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] px-6 py-5">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                <Bot className="w-6 h-6 text-white" />
+        <div className="card overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] px-4 py-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+                <Bot className="w-4 h-4 text-white" />
               </div>
               <div>
-                <h3 className="text-white font-semibold text-lg">SocialFlow Support</h3>
-                <p className="text-white/70 text-sm">Usually replies within 24h</p>
+                <h3 className="text-white font-medium text-sm">SocialFlow Support</h3>
+                <p className="text-white/70 text-xs">Usually replies within 24h</p>
               </div>
             </div>
           </div>
 
-          {/* Messages Area */}
-          <div className="p-6 min-h-[320px] max-h-[400px] overflow-y-auto space-y-4 bg-[rgba(0,0,0,0.2)]">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex gap-3 ${message.sender === "user" ? "flex-row-reverse" : ""}`}
-              >
-                <div
-                  className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center ${
-                    message.sender === "user"
-                      ? "bg-gradient-to-r from-[#8B5CF6] to-[#EC4899]"
-                      : "bg-[rgba(139,92,246,0.3)]"
-                  }`}
-                >
-                  {message.sender === "user" ? (
-                    <User className="w-5 h-5 text-white" />
+          {/* Messages */}
+          <div className="p-4 h-64 overflow-y-auto space-y-3 bg-[rgba(0,0,0,0.15)]">
+            {messages.map((msg) => (
+              <div key={msg.id} className={`flex gap-2 ${msg.sender === "user" ? "flex-row-reverse" : ""}`}>
+                <div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center ${
+                  msg.sender === "user"
+                    ? "bg-gradient-to-br from-[#8B5CF6] to-[#EC4899]"
+                    : "bg-[rgba(139,92,246,0.2)]"
+                }`}>
+                  {msg.sender === "user" ? (
+                    <User className="w-3.5 h-3.5 text-white" />
                   ) : (
-                    <Bot className="w-5 h-5 text-[#8B5CF6]" />
+                    <Bot className="w-3.5 h-3.5 text-[#8B5CF6]" />
                   )}
                 </div>
-                <div
-                  className={`max-w-[75%] px-4 py-3 rounded-2xl ${
-                    message.sender === "user"
-                      ? "bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] text-white rounded-br-md"
-                      : "bg-[rgba(139,92,246,0.15)] text-white rounded-bl-md"
-                  }`}
-                >
-                  <p className="text-sm leading-relaxed">{message.content}</p>
-                  <p
-                    className={`text-xs mt-2 ${
-                      message.sender === "user" ? "text-white/60" : "text-[#94a3b8]"
-                    }`}
-                  >
-                    {message.timestamp.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                <div className={`max-w-[75%] px-3 py-2 rounded-xl text-sm ${
+                  msg.sender === "user"
+                    ? "bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] text-white rounded-br-sm"
+                    : "bg-[rgba(139,92,246,0.1)] text-white rounded-bl-sm"
+                }`}>
+                  <p className="leading-relaxed">{msg.content}</p>
+                  <p className={`text-[10px] mt-1 ${msg.sender === "user" ? "text-white/60" : "text-[#64748b]"}`}>
+                    {msg.time}
                   </p>
                 </div>
               </div>
             ))}
-
-            {isLoading && (
-              <div className="flex gap-3">
-                <div className="w-10 h-10 rounded-full bg-[rgba(139,92,246,0.3)] flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-[#8B5CF6]" />
+            {loading && (
+              <div className="flex gap-2">
+                <div className="w-7 h-7 rounded-full bg-[rgba(139,92,246,0.2)] flex items-center justify-center">
+                  <Bot className="w-3.5 h-3.5 text-[#8B5CF6]" />
                 </div>
-                <div className="bg-[rgba(139,92,246,0.15)] px-4 py-3 rounded-2xl rounded-bl-md">
-                  <div className="flex gap-1.5">
-                    <span className="w-2 h-2 bg-[#8B5CF6] rounded-full animate-bounce" />
-                    <span className="w-2 h-2 bg-[#8B5CF6] rounded-full animate-bounce" style={{ animationDelay: "0.15s" }} />
-                    <span className="w-2 h-2 bg-[#8B5CF6] rounded-full animate-bounce" style={{ animationDelay: "0.3s" }} />
+                <div className="bg-[rgba(139,92,246,0.1)] px-3 py-2 rounded-xl rounded-bl-sm">
+                  <div className="flex gap-1">
+                    <span className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full animate-bounce" />
+                    <span className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full animate-bounce [animation-delay:0.15s]" />
+                    <span className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full animate-bounce [animation-delay:0.3s]" />
                   </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Input Area */}
-          <div className="p-6 border-t border-[rgba(139,92,246,0.2)] bg-[rgba(0,0,0,0.1)]">
-            {showForm && !isSent ? (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Input */}
+          <div className="p-4 border-t border-[rgba(139,92,246,0.15)] bg-[rgba(0,0,0,0.1)]">
+            {!sent ? (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#94a3b8]" />
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b]" />
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="Your name"
-                      className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(139,92,246,0.3)] rounded-xl pl-12 pr-4 py-3 text-white placeholder-[#94a3b8] focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all"
+                      placeholder="Name"
+                      className="input pl-9 text-sm"
                     />
                   </div>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#94a3b8]" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b]" />
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Your email"
-                      className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(139,92,246,0.3)] rounded-xl pl-12 pr-4 py-3 text-white placeholder-[#94a3b8] focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all"
+                      placeholder="Email"
+                      className="input pl-9 text-sm"
                     />
                   </div>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   <textarea
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleKeyPress}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), handleSend())}
                     placeholder="Type your message..."
-                    className="flex-1 bg-[rgba(255,255,255,0.05)] border border-[rgba(139,92,246,0.3)] rounded-xl px-4 py-3 text-white placeholder-[#94a3b8] focus:outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[rgba(139,92,246,0.2)] transition-all resize-none"
-                    rows={3}
+                    className="input text-sm flex-1 resize-none h-20"
                   />
                   <button
-                    onClick={handleSendMessage}
-                    disabled={isLoading || !inputValue.trim() || !email.trim() || !name.trim()}
-                    className="self-end bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                    onClick={handleSend}
+                    disabled={loading || !input.trim() || !email.trim() || !name.trim()}
+                    className="btn-primary px-4 self-end disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isLoading ? (
-                      <Loader2 className="w-6 h-6 animate-spin" />
-                    ) : (
-                      <Send className="w-6 h-6" />
-                    )}
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center gap-3 py-6">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-8 h-8 text-green-400" />
-                  <p className="text-white text-lg">Message sent! I&apos;ll get back to you soon.</p>
+              <div className="flex flex-col items-center gap-2 py-4">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                  <p className="text-white text-sm">Message sent!</p>
                 </div>
                 <button
-                  onClick={() => {
-                    setShowForm(true);
-                    setIsSent(false);
-                  }}
-                  className="text-[#8B5CF6] hover:text-[#EC4899] text-sm underline transition-colors"
+                  onClick={() => setSent(false)}
+                  className="text-[#8B5CF6] hover:text-[#EC4899] text-xs underline"
                 >
-                  Send another message
+                  Send another
                 </button>
               </div>
             )}
           </div>
 
-          {/* Direct Email */}
-          <div className="px-6 pb-6 text-center">
-            <p className="text-[#94a3b8] text-sm">
-              Or email me directly at{" "}
-              <a
-                href="mailto:oemad442@gmail.com"
-                className="text-[#8B5CF6] hover:text-[#EC4899] transition-colors font-medium"
-              >
+          <div className="px-4 pb-3 text-center">
+            <p className="text-xs text-[#64748b]">
+              Or email{" "}
+              <a href="mailto:oemad442@gmail.com" className="text-[#8B5CF6] hover:text-[#EC4899]">
                 oemad442@gmail.com
               </a>
             </p>

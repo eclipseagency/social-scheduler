@@ -7,22 +7,17 @@ import ChatBot from "./components/ChatBot";
 
 export const metadata: Metadata = {
   title: "SocialFlow - Social Media Management Platform",
-  description:
-    "Streamline your social media management with AI-powered captions and effortless scheduling across Instagram, Facebook, and LinkedIn.",
+  description: "AI-powered social media management for Instagram, Facebook, and LinkedIn.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="antialiased min-h-screen flex flex-col">
+      <body className="min-h-screen flex flex-col">
         <Providers>
           <div className="gradient-bg" />
           <Navbar />
-          <main className="flex-1 pt-14 sm:pt-16">{children}</main>
+          <main className="flex-1 pt-14">{children}</main>
           <Footer />
           <ChatBot />
         </Providers>

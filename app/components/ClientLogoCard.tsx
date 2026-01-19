@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, Calendar } from "lucide-react";
+import { Building2 } from "lucide-react";
 
 interface ClientLogoCardProps {
   name: string;
@@ -8,40 +8,20 @@ interface ClientLogoCardProps {
   description?: string;
 }
 
-export default function ClientLogoCard({
-  name,
-  logoUrl,
-  description,
-}: ClientLogoCardProps) {
+export default function ClientLogoCard({ name, logoUrl, description }: ClientLogoCardProps) {
   return (
-    <div className="bg-[rgba(139,92,246,0.08)] border border-[rgba(139,92,246,0.2)] rounded-2xl p-6 hover:bg-[rgba(139,92,246,0.12)] hover:border-[rgba(236,72,153,0.4)] transition-all duration-300 group cursor-pointer">
-      {/* Logo Area */}
-      <div className="w-full h-40 rounded-xl bg-gradient-to-br from-[rgba(139,92,246,0.15)] to-[rgba(236,72,153,0.15)] flex items-center justify-center mb-5 group-hover:from-[rgba(139,92,246,0.25)] group-hover:to-[rgba(236,72,153,0.25)] transition-all duration-300 overflow-hidden">
+    <div className="card p-4 cursor-pointer group">
+      <div className="aspect-square rounded-lg bg-[rgba(139,92,246,0.06)] flex items-center justify-center mb-3 group-hover:bg-[rgba(139,92,246,0.1)] transition-colors">
         {logoUrl ? (
-          <img
-            src={logoUrl}
-            alt={`${name} logo`}
-            className="w-full h-full object-contain p-4"
-          />
+          <img src={logoUrl} alt={name} className="w-full h-full object-contain p-3" />
         ) : (
-          <Building2 className="w-16 h-16 text-[#8B5CF6] opacity-40 group-hover:opacity-60 transition-opacity" />
+          <Building2 className="w-8 h-8 text-[#8B5CF6] opacity-40" />
         )}
       </div>
-
-      {/* Client Info */}
-      <h3 className="text-white font-semibold text-xl mb-2 truncate group-hover:text-gradient transition-colors">
-        {name}
-      </h3>
-
+      <h3 className="text-sm font-medium text-white truncate">{name}</h3>
       {description && (
-        <p className="text-[#94a3b8] text-sm mb-4 line-clamp-2 leading-relaxed">{description}</p>
+        <p className="text-xs text-[#64748b] truncate mt-0.5">{description}</p>
       )}
-
-      {/* Action Hint */}
-      <div className="flex items-center gap-2 text-[#8B5CF6] text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-        <Calendar className="w-4 h-4" />
-        <span>Click to view schedule</span>
-      </div>
     </div>
   );
 }
