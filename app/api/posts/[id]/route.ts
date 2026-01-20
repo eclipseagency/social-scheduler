@@ -21,7 +21,19 @@ export async function GET(
       where: { id },
       include: {
         client: true,
-        socialAccount: true,
+        createdBy: {
+          select: { id: true, name: true, email: true },
+        },
+        platformSchedules: {
+          include: {
+            platform: true,
+            socialAccount: true,
+          },
+        },
+        mediaAssets: {
+          include: { mediaAsset: true },
+          orderBy: { order: "asc" },
+        },
       },
     });
 
@@ -30,11 +42,7 @@ export async function GET(
     }
 
     // Check authorization
-    if (session.user.role === "admin" && post.client.adminId !== session.user.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    if (session.user.role === "client" && post.client.userId !== session.user.id) {
+    if (post.client.userId !== session.user.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -56,39 +64,79 @@ export async function PUT(
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "admin") {
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id } = await params;
     const body = await request.json();
-    const { title, caption, imageUrl, mediaType, postType, status, scheduledAt } = body;
+    const {
+      title,
+      caption,
+      hashtags,
+      mediaType,
+      status,
+      platformSchedules,
+    } = body;
 
     const post = await prisma.post.findUnique({
       where: { id },
       include: { client: true },
     });
 
-    if (!post || post.client.adminId !== session.user.id) {
+    if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
+    if (post.client.userId !== session.user.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Update post
     const updatedPost = await prisma.post.update({
       where: { id },
       data: {
         title,
         caption,
-        imageUrl,
+        hashtags,
         mediaType,
-        postType,
         status,
-        scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
       },
       include: {
         client: true,
-        socialAccount: true,
+        platformSchedules: {
+          include: {
+            platform: true,
+            socialAccount: true,
+          },
+        },
       },
     });
+
+    // Update platform schedules if provided
+    if (platformSchedules) {
+      // Delete existing schedules
+      await prisma.platformSchedule.deleteMany({
+        where: { postId: id },
+      });
+
+      // Create new schedules
+      if (platformSchedules.length > 0) {
+        await prisma.platformSchedule.createMany({
+          data: platformSchedules.map((schedule: {
+            platformId: string;
+            socialAccountId: string;
+            scheduledAt: string;
+          }) => ({
+            postId: id,
+            platformId: schedule.platformId,
+            socialAccountId: schedule.socialAccountId,
+            scheduledAt: new Date(schedule.scheduledAt),
+            status: "SCHEDULED",
+          })),
+        });
+      }
+    }
 
     return NextResponse.json(updatedPost);
   } catch (error) {
@@ -108,7 +156,7 @@ export async function DELETE(
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "admin") {
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -119,8 +167,12 @@ export async function DELETE(
       include: { client: true },
     });
 
-    if (!post || post.client.adminId !== session.user.id) {
+    if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
+    if (post.client.userId !== session.user.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     await prisma.post.delete({

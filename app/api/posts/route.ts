@@ -14,35 +14,15 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const clientId = searchParams.get("clientId");
-    const platform = searchParams.get("platform");
     const status = searchParams.get("status");
 
-    const where: Record<string, unknown> = {};
+    // Build where clause
+    const where: Record<string, unknown> = {
+      client: { userId: session.user.id },
+    };
 
-    if (session.user.role === "admin") {
-      // Admin can see all posts for their clients
-      if (clientId) {
-        where.clientId = clientId;
-      } else {
-        const clients = await prisma.client.findMany({
-          where: { adminId: session.user.id },
-          select: { id: true },
-        });
-        where.clientId = { in: clients.map((c) => c.id) };
-      }
-    } else {
-      // Client can only see their posts
-      const client = await prisma.client.findUnique({
-        where: { userId: session.user.id },
-      });
-      if (!client) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-      where.clientId = client.id;
-    }
-
-    if (platform) {
-      where.socialAccount = { platform };
+    if (clientId) {
+      where.clientId = clientId;
     }
 
     if (status) {
@@ -53,9 +33,21 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         client: true,
-        socialAccount: true,
+        createdBy: {
+          select: { id: true, name: true, email: true },
+        },
+        platformSchedules: {
+          include: {
+            platform: true,
+            socialAccount: true,
+          },
+        },
+        mediaAssets: {
+          include: { mediaAsset: true },
+          orderBy: { order: "asc" },
+        },
       },
-      orderBy: { scheduledAt: "asc" },
+      orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json(posts);
@@ -68,73 +60,96 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST create a new post
+// POST create a new post with platform-specific scheduling
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "admin") {
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
     const {
       clientId,
-      socialAccountId,
       title,
       caption,
-      imageUrl,
+      hashtags,
       mediaType,
-      postType,
-      scheduledAt,
       aiGenerated,
       aiPromptUsed,
+      platformSchedules, // Array of { platformId, socialAccountId, scheduledAt }
+      mediaAssetIds,     // Array of media asset IDs
     } = body;
 
-    if (!clientId || !socialAccountId) {
+    if (!clientId) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Client ID is required" },
         { status: 400 }
       );
     }
 
-    // Verify client and social account belong to admin
-    const client = await prisma.client.findUnique({
-      where: { id: clientId },
+    // Verify client belongs to user
+    const client = await prisma.client.findFirst({
+      where: { id: clientId, userId: session.user.id },
     });
 
-    if (!client || client.adminId !== session.user.id) {
+    if (!client) {
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
 
-    const socialAccount = await prisma.socialAccount.findUnique({
-      where: { id: socialAccountId },
-    });
-
-    if (!socialAccount || socialAccount.clientId !== clientId) {
-      return NextResponse.json(
-        { error: "Social account not found" },
-        { status: 404 }
-      );
+    // Determine post status based on schedules
+    let postStatus = "DRAFT";
+    if (platformSchedules && platformSchedules.length > 0) {
+      postStatus = "SCHEDULED";
     }
 
+    // Create post with platform schedules
     const post = await prisma.post.create({
       data: {
         clientId,
-        socialAccountId,
+        createdById: session.user.id,
         title,
         caption,
-        imageUrl,
-        mediaType: mediaType || "image",
-        postType: postType || "image_first",
-        status: scheduledAt ? "scheduled" : "draft",
-        scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
+        hashtags,
+        mediaType: mediaType || "IMAGE",
+        status: postStatus,
         aiGenerated: aiGenerated || false,
         aiPromptUsed,
+        platformSchedules: platformSchedules
+          ? {
+              create: platformSchedules.map((schedule: {
+                platformId: string;
+                socialAccountId: string;
+                scheduledAt: string;
+              }) => ({
+                platformId: schedule.platformId,
+                socialAccountId: schedule.socialAccountId,
+                scheduledAt: new Date(schedule.scheduledAt),
+                status: "SCHEDULED",
+              })),
+            }
+          : undefined,
+        mediaAssets: mediaAssetIds
+          ? {
+              create: mediaAssetIds.map((id: string, index: number) => ({
+                mediaAssetId: id,
+                order: index,
+              })),
+            }
+          : undefined,
       },
       include: {
         client: true,
-        socialAccount: true,
+        platformSchedules: {
+          include: {
+            platform: true,
+            socialAccount: true,
+          },
+        },
+        mediaAssets: {
+          include: { mediaAsset: true },
+        },
       },
     });
 
@@ -144,6 +159,8 @@ export async function POST(request: NextRequest) {
         data: {
           clientId,
           caption,
+          hashtags,
+          platform: platformSchedules?.[0]?.platformId || "general",
           keywords: extractKeywords(caption),
         },
       });
