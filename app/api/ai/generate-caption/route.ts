@@ -4,9 +4,15 @@ import { authOptions } from "@/app/lib/auth";
 import prisma from "@/app/lib/prisma";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize OpenAI client lazily to avoid build-time errors
+function getOpenAIClient() {
+  if (!process.env.OPENAI_API_KEY) {
+    return null;
+  }
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -67,7 +73,8 @@ export async function POST(request: NextRequest) {
     });
 
     // Check if OpenAI API key is available
-    if (!process.env.OPENAI_API_KEY) {
+    const openai = getOpenAIClient();
+    if (!openai) {
       // Return mock response for development
       return NextResponse.json({
         caption: generateMockCaption(client.brandTone, platforms?.[0] || "Instagram"),

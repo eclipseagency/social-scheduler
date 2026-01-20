@@ -11,27 +11,27 @@ export async function PUT(
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "admin") {
+    if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id } = await params;
     const body = await request.json();
-    const { accountName, accountId, accessToken, refreshToken, profileUrl, isConnected } = body;
+    const { username, accountId, accessToken, refreshToken, profileUrl, isConnected } = body;
 
     const socialAccount = await prisma.socialAccount.findUnique({
       where: { id },
       include: { client: true },
     });
 
-    if (!socialAccount || socialAccount.client.adminId !== session.user.id) {
+    if (!socialAccount || socialAccount.client.userId !== session.user.id) {
       return NextResponse.json({ error: "Social account not found" }, { status: 404 });
     }
 
     const updated = await prisma.socialAccount.update({
       where: { id },
       data: {
-        accountName,
+        username,
         accountId,
         accessToken,
         refreshToken,
@@ -58,7 +58,7 @@ export async function DELETE(
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "admin") {
+    if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -69,7 +69,7 @@ export async function DELETE(
       include: { client: true },
     });
 
-    if (!socialAccount || socialAccount.client.adminId !== session.user.id) {
+    if (!socialAccount || socialAccount.client.userId !== session.user.id) {
       return NextResponse.json({ error: "Social account not found" }, { status: 404 });
     }
 

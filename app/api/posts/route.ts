@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/auth";
 import prisma from "@/app/lib/prisma";
+import { PostStatus } from "@prisma/client";
 
 // GET posts
 export async function GET(request: NextRequest) {
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Determine post status based on schedules
-    let postStatus = "DRAFT";
+    let postStatus: PostStatus = "DRAFT";
     if (platformSchedules && platformSchedules.length > 0) {
       postStatus = "SCHEDULED";
     }

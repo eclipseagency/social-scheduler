@@ -8,34 +8,35 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "admin") {
+    if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
-    const { clientId, platform, accountName, accountId, accessToken, profileUrl } = body;
+    const { clientId, platformId, accountName, username, accountId, accessToken, profileUrl } = body;
 
-    if (!clientId || !platform || !accountName) {
+    if (!clientId || !platformId || !accountName) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // Verify client belongs to admin
+    // Verify client belongs to user
     const client = await prisma.client.findUnique({
       where: { id: clientId },
     });
 
-    if (!client || client.adminId !== session.user.id) {
+    if (!client || client.userId !== session.user.id) {
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
 
     const socialAccount = await prisma.socialAccount.create({
       data: {
-        clientId,
-        platform,
+        client: { connect: { id: clientId } },
+        platform: { connect: { id: platformId } },
         accountName,
+        username,
         accountId,
         accessToken,
         profileUrl,
