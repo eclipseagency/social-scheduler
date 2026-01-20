@@ -2,21 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/auth";
 import prisma from "@/app/lib/prisma";
-import bcrypt from "bcryptjs";
 
-// GET all clients for the admin
+// GET all clients for the current user
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "admin") {
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const clients = await prisma.client.findMany({
-      where: { adminId: session.user.id },
+      where: { userId: session.user.id },
       include: {
-        socialAccounts: true,
+        socialAccounts: {
+          include: { platform: true },
+        },
         _count: {
           select: { posts: true },
         },
@@ -39,12 +40,23 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "admin") {
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
-    const { name, email, phone, company, logoUrl, description, createUserAccount, password } = body;
+    const {
+      name,
+      email,
+      phone,
+      company,
+      logoUrl,
+      description,
+      brandTone,
+      industry,
+      website,
+      platforms,
+    } = body;
 
     if (!name) {
       return NextResponse.json(
@@ -53,33 +65,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let userId: string | undefined;
+    // Get the social platforms
+    const socialPlatforms = await prisma.socialPlatform.findMany({
+      where: { isActive: true },
+    });
 
-    // Create client user account if requested
-    if (createUserAccount && email && password) {
-      const existingUser = await prisma.user.findUnique({
-        where: { email },
-      });
-
-      if (existingUser) {
-        return NextResponse.json(
-          { error: "A user with this email already exists" },
-          { status: 400 }
-        );
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 12);
-      const clientUser = await prisma.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          name,
-          role: "client",
-        },
-      });
-      userId = clientUser.id;
-    }
-
+    // Create client with social accounts
     const client = await prisma.client.create({
       data: {
         name,
@@ -88,11 +79,28 @@ export async function POST(request: NextRequest) {
         company,
         logoUrl,
         description,
-        adminId: session.user.id,
-        userId,
+        brandTone: brandTone || "PROFESSIONAL",
+        industry,
+        website,
+        userId: session.user.id,
+        socialAccounts: {
+          create: socialPlatforms
+            .filter((platform) => {
+              const platformKey = platform.name.toLowerCase();
+              return platforms ? platforms[platformKey] !== false : true;
+            })
+            .map((platform) => ({
+              accountName: `${name} ${platform.name}`,
+              username: `@${name.toLowerCase().replace(/\s+/g, "")}`,
+              platformId: platform.id,
+              isConnected: false, // Default to not connected until OAuth
+            })),
+        },
       },
       include: {
-        socialAccounts: true,
+        socialAccounts: {
+          include: { platform: true },
+        },
       },
     });
 

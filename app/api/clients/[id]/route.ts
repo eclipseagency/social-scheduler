@@ -20,14 +20,24 @@ export async function GET(
     const client = await prisma.client.findUnique({
       where: { id },
       include: {
-        socialAccounts: true,
+        socialAccounts: {
+          include: { platform: true },
+        },
         posts: {
           orderBy: { createdAt: "desc" },
           take: 10,
+          include: {
+            platformSchedules: {
+              include: { platform: true },
+            },
+          },
         },
         captionHistory: {
           orderBy: { usedAt: "desc" },
           take: 20,
+        },
+        _count: {
+          select: { posts: true },
         },
       },
     });
@@ -36,12 +46,8 @@ export async function GET(
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
 
-    // Check authorization
-    if (session.user.role === "admin" && client.adminId !== session.user.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    if (session.user.role === "client" && client.userId !== session.user.id) {
+    // Check authorization - users can only view their own clients
+    if (client.userId !== session.user.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -63,20 +69,34 @@ export async function PUT(
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "admin") {
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id } = await params;
     const body = await request.json();
-    const { name, email, phone, company, logoUrl, description } = body;
+    const {
+      name,
+      email,
+      phone,
+      company,
+      logoUrl,
+      description,
+      brandTone,
+      industry,
+      website,
+    } = body;
 
     const client = await prisma.client.findUnique({
       where: { id },
     });
 
-    if (!client || client.adminId !== session.user.id) {
+    if (!client) {
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
+    }
+
+    if (client.userId !== session.user.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const updatedClient = await prisma.client.update({
@@ -88,9 +108,14 @@ export async function PUT(
         company,
         logoUrl,
         description,
+        brandTone,
+        industry,
+        website,
       },
       include: {
-        socialAccounts: true,
+        socialAccounts: {
+          include: { platform: true },
+        },
       },
     });
 
@@ -112,8 +137,16 @@ export async function DELETE(
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "admin") {
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Only admins can delete clients
+    if (session.user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Only admins can delete clients" },
+        { status: 403 }
+      );
     }
 
     const { id } = await params;
@@ -122,8 +155,12 @@ export async function DELETE(
       where: { id },
     });
 
-    if (!client || client.adminId !== session.user.id) {
+    if (!client) {
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
+    }
+
+    if (client.userId !== session.user.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     await prisma.client.delete({
