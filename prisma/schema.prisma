@@ -1,108 +1,259 @@
-// Prisma schema for Social Media Scheduler Platform
+// Prisma schema for Social Media Management Platform
+// Production-ready, scalable architecture
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
   provider = "sqlite"
 }
 
-// Admin user who manages everything
+// ==================== USER & AUTHENTICATION ====================
+
+// User model with role-based access control
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
   password      String
   name          String
-  role          String    @default("admin") // admin or client
+  role          Role      @default(MODERATOR)
+  avatar        String?
+  isActive      Boolean   @default(true)
+  lastLoginAt   DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  clients       Client[]  @relation("AdminClients")
-  clientAccess  Client?   @relation("ClientUser")
+  // Relationships
+  clients       Client[]  @relation("UserClients")
+  posts         Post[]    @relation("PostCreator")
+  sessions      Session[]
 }
 
-// Clients managed by the admin
+// Session for authentication
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Role enum (stored as string in SQLite)
+enum Role {
+  ADMIN
+  MODERATOR
+}
+
+// ==================== CLIENT MANAGEMENT ====================
+
+// Client - companies/brands managed by the platform
 model Client {
-  id            String          @id @default(uuid())
+  id            String      @id @default(uuid())
   name          String
   email         String?
   phone         String?
   company       String?
-  logoUrl       String?         // Logo image URL for easy recognition
+  logoUrl       String?
   description   String?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  brandTone     BrandTone   @default(PROFESSIONAL)
+  industry      String?
+  website       String?
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
-  // Admin who manages this client
-  adminId       String
-  admin         User            @relation("AdminClients", fields: [adminId], references: [id], onDelete: Cascade)
+  // User who manages this client
+  userId        String
+  user          User        @relation("UserClients", fields: [userId], references: [id], onDelete: Cascade)
 
-  // Client user account (for client dashboard access)
-  userId        String?         @unique
-  user          User?           @relation("ClientUser", fields: [userId], references: [id])
-
-  // Social media accounts
+  // Relationships
   socialAccounts SocialAccount[]
-
-  // Scheduled posts
-  posts         Post[]
-
-  // Caption history for AI to avoid repetition
+  posts          Post[]
+  mediaAssets    MediaAsset[]
   captionHistory CaptionHistory[]
 }
 
-// Social media accounts for each client
-model SocialAccount {
+// Brand tone for AI caption generation
+enum BrandTone {
+  PROFESSIONAL
+  FRIENDLY
+  CASUAL
+  FORMAL
+  HUMOROUS
+  INSPIRATIONAL
+  SALES_DRIVEN
+  EDUCATIONAL
+}
+
+// ==================== SOCIAL MEDIA PLATFORMS ====================
+
+// Predefined social platforms
+model SocialPlatform {
   id            String    @id @default(uuid())
-  platform      String    // instagram, facebook, linkedin
-  accountName   String
-  accountId     String?   // Platform-specific account ID
-  accessToken   String?   // OAuth access token
-  refreshToken  String?   // OAuth refresh token
-  tokenExpiry   DateTime?
-  isConnected   Boolean   @default(false)
-  profileUrl    String?
+  name          String    @unique // Instagram, Facebook, LinkedIn
+  icon          String?
+  color         String?   // Brand color for UI
+  maxCaptionLength Int?   // Platform-specific limits
+  supportsVideo Boolean   @default(true)
+  supportsCarousel Boolean @default(false)
+  isActive      Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // Relationships
+  socialAccounts SocialAccount[]
+  platformSchedules PlatformSchedule[]
+}
+
+// Social account connection between Client and Platform
+model SocialAccount {
+  id            String    @id @default(uuid())
+  accountName   String
+  accountId     String?   // Platform-specific account ID
+  username      String?
+  profileUrl    String?
+  accessToken   String?   // OAuth access token (encrypted in production)
+  refreshToken  String?   // OAuth refresh token
+  tokenExpiry   DateTime?
+  isConnected   Boolean   @default(false)
+  followerCount Int?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
   clientId      String
   client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
-  posts         Post[]
+  platformId    String
+  platform      SocialPlatform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+
+  platformSchedules PlatformSchedule[]
 }
 
-// Scheduled posts
+// ==================== POST MANAGEMENT ====================
+
+// Main Post model
 model Post {
-  id              String    @id @default(uuid())
+  id              String      @id @default(uuid())
   title           String?
   caption         String?
-  imageUrl        String?   // Uploaded design image
-  mediaType       String    @default("image") // image, video, carousel
-  postType        String    @default("image_first") // image_first, text_first
-  status          String    @default("draft") // draft, scheduled, published, failed
-  scheduledAt     DateTime?
-  publishedAt     DateTime?
+  hashtags        String?     // Comma-separated hashtags
+  mediaType       MediaType   @default(IMAGE)
+  status          PostStatus  @default(DRAFT)
   errorMessage    String?
 
-  // AI-generated caption metadata
-  aiGenerated     Boolean   @default(false)
+  // AI-related fields
+  aiGenerated     Boolean     @default(false)
   aiPromptUsed    String?
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  // Timestamps
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
+  // Relationships
   clientId        String
-  client          Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client          Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  createdById     String
+  createdBy       User        @relation("PostCreator", fields: [createdById], references: [id])
+
+  // Multiple platform schedules for different posting times
+  platformSchedules PlatformSchedule[]
+
+  // Media assets attached to this post
+  mediaAssets     PostMediaAsset[]
+}
+
+// Platform-specific scheduling
+model PlatformSchedule {
+  id              String      @id @default(uuid())
+  scheduledAt     DateTime
+  publishedAt     DateTime?
+  status          PostStatus  @default(SCHEDULED)
+  errorMessage    String?
+  platformPostId  String?     // ID from the platform after posting
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relationships
+  postId          String
+  post            Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   socialAccountId String
   socialAccount   SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+
+  platformId      String
+  platform        SocialPlatform @relation(fields: [platformId], references: [id], onDelete: Cascade)
 }
+
+// Post status enum
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  POSTED
+  FAILED
+}
+
+// Media type enum
+enum MediaType {
+  IMAGE
+  VIDEO
+  CAROUSEL
+}
+
+// ==================== MEDIA MANAGEMENT ====================
+
+// Media assets uploaded to the platform
+model MediaAsset {
+  id            String    @id @default(uuid())
+  fileName      String
+  originalName  String
+  filePath      String
+  fileUrl       String
+  fileType      String    // image, video
+  mimeType      String
+  fileSize      Int       // in bytes
+  width         Int?
+  height        Int?
+  duration      Int?      // for videos, in seconds
+  thumbnail     String?   // thumbnail URL for videos
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Posts using this media
+  posts         PostMediaAsset[]
+}
+
+// Junction table for Post and MediaAsset (many-to-many)
+model PostMediaAsset {
+  id            String    @id @default(uuid())
+  order         Int       @default(0)  // For carousel ordering
+
+  postId        String
+  post          Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  mediaAssetId  String
+  mediaAsset    MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, mediaAssetId])
+}
+
+// ==================== AI CAPTION HISTORY ====================
 
 // Track caption history to avoid repetition
 model CaptionHistory {
   id            String    @id @default(uuid())
   caption       String
+  hashtags      String?
+  platform      String    // Which platform this was for
   keywords      String?   // Keywords extracted from the caption
   usedAt        DateTime  @default(now())
 
@@ -110,7 +261,9 @@ model CaptionHistory {
   client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
-// Contact messages from chatbot
+// ==================== SYSTEM ====================
+
+// Contact messages from website
 model ContactMessage {
   id            String    @id @default(uuid())
   name          String
@@ -118,15 +271,4 @@ model ContactMessage {
   message       String
   status        String    @default("unread") // unread, read, replied
   createdAt     DateTime  @default(now())
-}
-
-// Store uploaded media files
-model MediaFile {
-  id            String    @id @default(uuid())
-  fileName      String
-  filePath      String
-  fileType      String    // image, video
-  fileSize      Int
-  mimeType      String
-  uploadedAt    DateTime  @default(now())
 }
