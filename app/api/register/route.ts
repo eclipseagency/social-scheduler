@@ -5,11 +5,28 @@ import prisma from "@/app/lib/prisma";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, name } = body;
+    const { email, password, name, role } = body;
 
     if (!email || !password || !name) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: "Invalid email format" },
+        { status: 400 }
+      );
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return NextResponse.json(
+        { error: "Password must be at least 6 characters" },
         { status: 400 }
       );
     }
@@ -21,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "User already exists" },
+        { error: "User already exists with this email" },
         { status: 400 }
       );
     }
@@ -29,13 +46,18 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    // Validate role - default to MODERATOR for self-registration
+    // Only ADMIN can be assigned through admin panel
+    const validRole = role === "ADMIN" ? "ADMIN" : "MODERATOR";
+
     // Create user
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         name,
-        role: "admin",
+        role: validRole,
+        isActive: true,
       },
     });
 
