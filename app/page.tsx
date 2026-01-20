@@ -6,155 +6,136 @@ import {
   Sparkles,
   Calendar,
   Users,
-  BarChart3,
-  ArrowRight,
-  Check,
   Clock,
-  Palette,
-  TrendingUp,
+  Image,
+  CheckCircle,
+  ArrowRight,
+  Zap,
+  BarChart3,
+  Send,
 } from "lucide-react";
-import ClientLogoCard from "./components/ClientLogoCard";
-import ContactSection from "./components/ContactSection";
-
-const clients = [
-  { name: "Acme Corp", description: "Tech startup" },
-  { name: "Bloom Studio", description: "Design agency" },
-  { name: "Velocity Fitness", description: "Fitness brand" },
-  { name: "Green Earth", description: "Eco products" },
-  { name: "Nova Digital", description: "Marketing agency" },
-  { name: "Urban Eats", description: "Restaurant chain" },
-];
 
 const features = [
-  { icon: Users, title: "Client Management", desc: "Manage multiple clients with dedicated dashboards and branding." },
-  { icon: Sparkles, title: "AI Captions", desc: "Generate unique captions with Claude AI that match your brand." },
-  { icon: Calendar, title: "Smart Scheduling", desc: "Schedule posts and auto-publish at optimal times." },
-  { icon: BarChart3, title: "Multi-Platform", desc: "Publish to Instagram, Facebook, and LinkedIn easily." },
-  { icon: Clock, title: "Content Calendar", desc: "Visual calendar to plan your content strategy." },
-  { icon: Palette, title: "Media Library", desc: "Organize design assets for each client." },
-  { icon: TrendingUp, title: "Analytics", desc: "Track performance and optimize your strategy." },
+  {
+    icon: Users,
+    title: "Client Management",
+    description:
+      "Organize multiple clients with dedicated profiles, brand settings, and connected social accounts in one place.",
+  },
+  {
+    icon: Sparkles,
+    title: "AI Captions",
+    description:
+      "Generate unique, engaging captions powered by AI that match each client's brand tone and platform requirements.",
+  },
+  {
+    icon: Calendar,
+    title: "Smart Scheduling",
+    description:
+      "Set different posting times for each platform. Schedule Instagram at 9am and LinkedIn at 2pm for the same post.",
+  },
+  {
+    icon: Send,
+    title: "Multi-Platform Posting",
+    description:
+      "Publish to Instagram, Facebook, and LinkedIn simultaneously or at platform-specific optimal times.",
+  },
+  {
+    icon: Clock,
+    title: "Content Calendar",
+    description:
+      "Visual calendar view to plan, organize, and track all scheduled content across clients and platforms.",
+  },
+  {
+    icon: Image,
+    title: "Media Library",
+    description:
+      "Upload and organize images and videos. Attach media to posts and manage assets for each client.",
+  },
+  {
+    icon: BarChart3,
+    title: "Status Tracking",
+    description:
+      "Track post status in real-time: Draft, Scheduled, Posted, or Failed. Never miss a failed post again.",
+  },
 ];
 
 const steps = [
-  { num: "1", title: "Add Clients", desc: "Create profiles and connect social accounts." },
-  { num: "2", title: "Create Posts", desc: "Upload designs and generate AI captions." },
-  { num: "3", title: "Auto-Publish", desc: "Schedule and let the system handle the rest." },
+  {
+    number: "01",
+    title: "Add Your Clients",
+    description: "Create client profiles with brand tone, industry, and connect their social media accounts.",
+  },
+  {
+    number: "02",
+    title: "Create Content",
+    description: "Upload media, write captions or use AI to generate them, and select target platforms.",
+  },
+  {
+    number: "03",
+    title: "Schedule & Publish",
+    description: "Set platform-specific times and let the system auto-publish at the perfect moment.",
+  },
 ];
 
-const benefits = [
-  { title: "Save Hours Weekly", desc: "Automate tasks and focus on content." },
-  { title: "Never Miss a Post", desc: "Auto-publish even when you're away." },
-  { title: "Unique AI Captions", desc: "Fresh captions based on your design." },
-  { title: "Client Dashboards", desc: "Private dashboards for each client." },
+const platforms = [
+  { name: "Instagram", Icon: Instagram, color: "#E4405F", users: "2B+ users" },
+  { name: "Facebook", Icon: Facebook, color: "#1877F2", users: "3B+ users" },
+  { name: "LinkedIn", Icon: Linkedin, color: "#0A66C2", users: "900M+ users" },
 ];
 
 export default function Home() {
   return (
     <div className="min-h-screen">
-      {/* Hero */}
-      <section className="pt-24 pb-16 md:pt-32 md:pb-20">
-        <div className="container text-center">
-          <div className="inline-flex items-center gap-2 bg-[rgba(139,92,246,0.1)] border border-[rgba(139,92,246,0.2)] rounded-full px-4 py-2 mb-6">
-            <Sparkles className="w-4 h-4 text-[#EC4899]" />
-            <span className="text-sm text-[#94a3b8]">AI-Powered Social Media Management</span>
-          </div>
-
-          <h1 className="text-[32px] md:text-[48px] font-bold leading-[1.2] mb-4 max-w-3xl mx-auto">
-            <span className="text-white">Manage Your Social Media</span>{" "}
-            <span className="text-gradient">With Intelligence</span>
-          </h1>
-
-          <p className="text-base md:text-lg text-[#94a3b8] max-w-xl mx-auto mb-8 leading-relaxed">
-            Streamline content calendars, automate scheduling, and generate AI captions for Instagram, Facebook, and LinkedIn.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
-            <Link href="/login" className="btn-primary">
-              Get Started <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link href="#contact" className="btn-secondary">
-              Book a Demo
-            </Link>
-          </div>
-
-          <div className="flex justify-center gap-4">
-            {[
-              { Icon: Instagram, color: "#E4405F" },
-              { Icon: Facebook, color: "#1877F2" },
-              { Icon: Linkedin, color: "#0A66C2" },
-            ].map(({ Icon, color }) => (
-              <div
-                key={color}
-                className="w-12 h-12 rounded-xl bg-[rgba(139,92,246,0.08)] border border-[rgba(139,92,246,0.2)] flex items-center justify-center hover:bg-[rgba(139,92,246,0.15)] transition-colors"
-              >
-                <Icon className="w-5 h-5" style={{ color }} />
-              </div>
-            ))}
-          </div>
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#8B5CF6] rounded-full blur-[128px] opacity-20" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#EC4899] rounded-full blur-[128px] opacity-15" />
         </div>
-      </section>
 
-      {/* Features */}
-      <section className="section" id="features">
-        <div className="container">
-          <div className="text-center mb-10 md:mb-12">
-            <h2 className="text-[24px] md:text-[32px] font-bold text-white mb-3">
-              Everything You Need to <span className="text-gradient">Succeed</span>
-            </h2>
-            <p className="text-sm md:text-base text-[#94a3b8] max-w-lg mx-auto">
-              Powerful features to manage multiple clients effortlessly.
+        <div className="container relative">
+          <div className="max-w-4xl mx-auto text-center">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full bg-[rgba(139,92,246,0.1)] border border-[rgba(139,92,246,0.2)]">
+              <Sparkles className="w-4 h-4 text-[#EC4899]" />
+              <span className="text-sm text-[#A1A1AA]">AI-Powered Social Media Management</span>
+            </div>
+
+            {/* Heading */}
+            <h1 className="heading-xl mb-6">
+              <span className="text-white">Manage Social Media</span>
+              <br />
+              <span className="text-gradient">With Intelligence</span>
+            </h1>
+
+            {/* Description */}
+            <p className="text-lg md:text-xl text-[#A1A1AA] max-w-2xl mx-auto mb-10 leading-relaxed">
+              Schedule posts, generate AI captions, and manage multiple clients across Instagram,
+              Facebook, and LinkedIn from one powerful dashboard.
             </p>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {features.slice(0, 4).map((f, i) => (
-              <div key={i} className="card p-5">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#8B5CF6] to-[#EC4899] flex items-center justify-center mb-4">
-                  <f.icon className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-base font-semibold text-white mb-2">{f.title}</h3>
-                <p className="text-sm text-[#94a3b8] leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
-          </div>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
+              <Link href="/login" className="btn-primary text-base px-8 py-4">
+                Start Free Trial
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+              <Link href="#features" className="btn-secondary text-base px-8 py-4">
+                See Features
+              </Link>
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-            {features.slice(4).map((f, i) => (
-              <div key={i} className="card p-5">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#8B5CF6] to-[#EC4899] flex items-center justify-center mb-4">
-                  <f.icon className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-base font-semibold text-white mb-2">{f.title}</h3>
-                <p className="text-sm text-[#94a3b8] leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="section">
-        <div className="container max-w-4xl">
-          <div className="text-center mb-10 md:mb-12">
-            <h2 className="text-[24px] md:text-[32px] font-bold text-white mb-3">
-              How It <span className="text-gradient">Works</span>
-            </h2>
-            <p className="text-sm md:text-base text-[#94a3b8]">
-              Get started in minutes with our simple workflow
-            </p>
-          </div>
-
-          <div className="relative">
-            <div className="hidden md:block absolute top-8 left-[calc(16.67%+24px)] right-[calc(16.67%+24px)] h-[2px] bg-gradient-to-r from-[#8B5CF6] to-[#EC4899]" />
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {steps.map((step, i) => (
-                <div key={i} className="text-center relative">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#EC4899] flex items-center justify-center mx-auto mb-4 text-xl font-bold text-white relative z-10">
-                    {step.num}
-                  </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">{step.title}</h3>
-                  <p className="text-sm text-[#94a3b8]">{step.desc}</p>
+            {/* Platform Icons */}
+            <div className="flex items-center justify-center gap-4">
+              {platforms.map(({ Icon, color, name }) => (
+                <div
+                  key={name}
+                  className="platform-icon hover:scale-110"
+                  title={name}
+                >
+                  <Icon className="w-6 h-6" style={{ color }} />
                 </div>
               ))}
             </div>
@@ -162,74 +143,124 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Clients */}
-      <section className="section" id="clients">
+      {/* Features Section */}
+      <section id="features" className="section">
         <div className="container">
-          <div className="text-center mb-10 md:mb-12">
-            <h2 className="text-[24px] md:text-[32px] font-bold text-white mb-3">
-              Your <span className="text-gradient">Clients</span>
+          {/* Header */}
+          <div className="max-w-2xl mx-auto text-center mb-16">
+            <h2 className="heading-lg mb-4">
+              Everything You Need to <span className="text-gradient">Succeed</span>
             </h2>
-            <p className="text-sm md:text-base text-[#94a3b8] max-w-lg mx-auto">
-              Each client gets their own profile with logo and content calendar.
+            <p className="text-lg text-[#A1A1AA]">
+              Powerful features designed for agencies and social media managers handling multiple clients.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {clients.map((c) => (
-              <ClientLogoCard key={c.name} name={c.name} description={c.description} />
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature, index) => (
+              <div key={index} className="feature-card group">
+                <div className="relative z-10">
+                  <div className="icon-container">
+                    <feature.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white mb-3">{feature.title}</h3>
+                  <p className="text-[15px] text-[#A1A1AA] leading-relaxed">{feature.description}</p>
+                </div>
+              </div>
             ))}
-          </div>
-
-          <div className="text-center mt-8">
-            <Link href="/login" className="btn-primary">
-              Add Your First Client <ArrowRight className="w-4 h-4" />
-            </Link>
           </div>
         </div>
       </section>
 
-      {/* Benefits */}
-      <section className="section">
-        <div className="container max-w-5xl">
-          <div className="card p-6 md:p-10">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-              <div>
-                <h2 className="text-[24px] md:text-[32px] font-bold text-white mb-6">
-                  Why Choose <span className="text-gradient">SocialFlow</span>?
-                </h2>
+      {/* How It Works Section */}
+      <section id="how-it-works" className="section">
+        <div className="container">
+          <div className="max-w-2xl mx-auto text-center mb-16">
+            <h2 className="heading-lg mb-4">
+              How It <span className="text-gradient">Works</span>
+            </h2>
+            <p className="text-lg text-[#A1A1AA]">
+              Get started in minutes with our simple three-step workflow.
+            </p>
+          </div>
+
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+              {steps.map((step, index) => (
+                <div key={index} className="relative text-center">
+                  {/* Connector Line */}
+                  {index < steps.length - 1 && (
+                    <div className="hidden md:block absolute top-10 left-[60%] w-full h-px bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] opacity-30" />
+                  )}
+
+                  {/* Step Number */}
+                  <div className="relative inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-[#8B5CF6] to-[#EC4899] shadow-lg shadow-purple-500/30">
+                    <span className="text-2xl font-bold text-white">{step.number}</span>
+                  </div>
+
+                  <h3 className="text-xl font-semibold text-white mb-3">{step.title}</h3>
+                  <p className="text-[15px] text-[#A1A1AA] leading-relaxed">{step.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Platforms Section */}
+      <section id="platforms" className="section">
+        <div className="container">
+          <div className="max-w-4xl mx-auto">
+            <div className="glass-card p-8 md:p-12">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                {/* Content */}
+                <div>
+                  <h2 className="heading-md mb-4">
+                    Publish to <span className="text-gradient">Every Platform</span>
+                  </h2>
+                  <p className="text-[15px] text-[#A1A1AA] leading-relaxed mb-6">
+                    Connect your clients&apos; social accounts and publish content with platform-specific
+                    optimizations. Set different times, captions, and hashtags for each platform.
+                  </p>
+
+                  <ul className="space-y-3">
+                    {[
+                      "Platform-specific posting times",
+                      "Optimized captions per network",
+                      "Automatic hashtag suggestions",
+                      "Real-time publish status tracking",
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-center gap-3">
+                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#EC4899] flex items-center justify-center flex-shrink-0">
+                          <CheckCircle className="w-3 h-3 text-white" />
+                        </div>
+                        <span className="text-[15px] text-[#A1A1AA]">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Platform Cards */}
                 <div className="space-y-4">
-                  {benefits.map((b, i) => (
-                    <div key={i} className="flex gap-3">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#EC4899] flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="w-3.5 h-3.5 text-white" />
+                  {platforms.map(({ name, Icon, color, users }) => (
+                    <div
+                      key={name}
+                      className="flex items-center gap-4 p-4 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] hover:border-[rgba(139,92,246,0.3)] transition-all"
+                    >
+                      <div
+                        className="w-12 h-12 rounded-xl flex items-center justify-center"
+                        style={{ backgroundColor: `${color}15` }}
+                      >
+                        <Icon className="w-6 h-6" style={{ color }} />
                       </div>
-                      <div>
-                        <h4 className="text-base font-medium text-white">{b.title}</h4>
-                        <p className="text-sm text-[#94a3b8]">{b.desc}</p>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-white">{name}</h4>
+                        <p className="text-sm text-[#71717A]">{users}</p>
                       </div>
+                      <Zap className="w-5 h-5 text-[#8B5CF6]" />
                     </div>
                   ))}
-                </div>
-              </div>
-
-              <div className="card p-5 animate-pulse-glow">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#EC4899]" />
-                  <div>
-                    <div className="h-3 w-20 bg-[rgba(139,92,246,0.2)] rounded mb-1.5" />
-                    <div className="h-2.5 w-14 bg-[rgba(139,92,246,0.15)] rounded" />
-                  </div>
-                </div>
-                <div className="h-32 bg-[rgba(139,92,246,0.05)] border border-[rgba(139,92,246,0.15)] rounded-lg mb-4 flex items-center justify-center">
-                  <div className="text-center">
-                    <Palette className="w-10 h-10 text-[#8B5CF6] opacity-30 mx-auto mb-1" />
-                    <span className="text-xs text-[#64748b]">Design Preview</span>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Instagram className="w-4 h-4 text-[#E4405F]" />
-                  <Facebook className="w-4 h-4 text-[#1877F2]" />
-                  <Linkedin className="w-4 h-4 text-[#0A66C2]" />
                 </div>
               </div>
             </div>
@@ -237,21 +268,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Contact */}
-      <ContactSection />
-
-      {/* CTA */}
+      {/* CTA Section */}
       <section className="section">
-        <div className="container max-w-2xl text-center">
-          <h2 className="text-[24px] md:text-[32px] font-bold text-white mb-4">
-            Ready to <span className="text-gradient">Transform</span> Your Social Media?
-          </h2>
-          <p className="text-sm md:text-base text-[#94a3b8] mb-6">
-            Join today and manage your clients with the power of AI.
-          </p>
-          <Link href="/login" className="btn-primary">
-            Get Started Now <ArrowRight className="w-4 h-4" />
-          </Link>
+        <div className="container">
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="glass-card p-10 md:p-14 relative overflow-hidden">
+              {/* Background Glow */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-[#8B5CF6] rounded-full blur-[120px] opacity-20" />
+              </div>
+
+              <div className="relative">
+                <h2 className="heading-md mb-4">
+                  Ready to <span className="text-gradient">Transform</span> Your Workflow?
+                </h2>
+                <p className="text-lg text-[#A1A1AA] mb-8 max-w-xl mx-auto">
+                  Join thousands of agencies and social media managers who save hours every week with SocialFlow.
+                </p>
+                <Link href="/login" className="btn-primary text-base px-8 py-4">
+                  Get Started Now
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </div>
